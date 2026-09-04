@@ -198,7 +198,7 @@ let allClients = [];
 
 async function loadClients() {
   try {
-    const res = await fetch(API + '/api/clients');
+    const res = await fetch(API + '/api/clients?_t=' + Date.now());
     allClients = await res.json();
     renderClients();
 
@@ -256,7 +256,7 @@ async function loadCommands() {
   try {
     const clientId = document.getElementById('filterClient').value;
     const url = clientId ? `/api/commands/client/${clientId}` : '/api/commands';
-    const res = await fetch(API + url);
+    const res = await fetch(API + url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now());
     const commands = await res.json();
     const tbody = document.querySelector('#tblCommands tbody');
 

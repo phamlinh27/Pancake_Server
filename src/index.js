@@ -14,6 +14,13 @@ app.use(express.json());
 // Serve static files (admin UI)
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+// Chặn cache cho API
+app.use('/api', (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  next();
+});
+
 // Routes
 app.use('/api/clients', require('./routes/clients'));
 app.use('/api/commands', require('./routes/commands'));
