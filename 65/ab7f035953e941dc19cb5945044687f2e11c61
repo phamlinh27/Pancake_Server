@@ -1,0 +1,26 @@
+public/index.html
+  s_a6d6aca8d74fef::t_613204442ee6e5 287-308
+  s_a6d6aca8d74fef::t_ceb07716e68c20 235,240-241,248-249
+src/routes/clients.js
+  s_a6d6aca8d74fef::t_f8699be88a79cd 97-117
+  s_a6d6aca8d74fef::t_0b6b81eff871f7 61,66
+src/db.js
+  s_a6d6aca8d74fef::t_2854e032bb784e 53,62-67
+  s_a6d6aca8d74fef::t_d037b1fb3f635c 68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "65ab7f035953e941dc19cb5945044687f2e11c61",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
