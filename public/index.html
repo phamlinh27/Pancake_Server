@@ -232,20 +232,21 @@ function renderClients() {
   const tbody = document.querySelector('#tblClients tbody');
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + (allClients.length ? 'Không tìm thấy client nào' : 'Chưa có client nào') + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + (allClients.length ? 'Không tìm thấy client nào' : 'Chưa có client nào') + '</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(c => `
-    <tr>
-      <td><span class="status-dot ${c.status === 1 ? 'online' : 'offline'}"></span>${c.status === 1 ? 'Online' : 'Offline'}</td>
+    <tr${c.is_blocked ? ' style="background:#fee2e2;"' : ''}>
+      <td><span class="status-dot ${c.status === 1 ? 'online' : 'offline'}"></span>${c.status === 1 ? 'Online' : 'Offline'}${c.is_blocked ? ' <span class="badge badge-failed">Khoá</span>' : ''}</td>
       <td><strong>${c.misa_account || '-'}</strong></td>
       <td style="font-family:monospace;font-size:11px">${c.mainboard_seri}</td>
       <td style="font-family:monospace;font-size:11px">${c.pancake_apikey ? c.pancake_apikey.substring(0, 20) + '...' : ''}</td>
       <td>${fmtTime(c.started_at)}</td>
       <td>${timeAgo(c.last_seen_at)}</td>
       <td>
-        <button class="btn btn-primary btn-sm" onclick="openCommandModal('${c.id}')" ${c.status !== 1 ? 'disabled' : ''}>Gửi lệnh</button>
+        <button class="btn btn-primary btn-sm" onclick="openCommandModal('${c.id}')" ${c.status !== 1 || c.is_blocked ? 'disabled' : ''}>Gửi lệnh</button>
+        <button class="btn btn-sm ${c.is_blocked ? 'btn-primary' : 'btn-outline'}" onclick="toggleBlock('${c.id}', ${c.is_blocked ? 'false' : 'true'})" style="margin-left:4px;">${c.is_blocked ? 'Mở khoá' : 'Khoá'}</button>
       </td>
     </tr>
   `).join('');
@@ -280,6 +281,28 @@ async function loadCommands() {
     `).join('');
   } catch (err) {
     console.error('Load commands error:', err);
+  }
+}
+
+async function toggleBlock(clientId, blocked) {
+  const action = blocked ? 'khoá' : 'mở khoá';
+  if (!confirm('Bạn muốn ' + action + ' client này?')) return;
+
+  try {
+    const res = await fetch(API + '/api/clients/' + clientId + '/block', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocked })
+    });
+
+    if (res.ok) {
+      toast(blocked ? 'Đã khoá client' : 'Đã mở khoá client');
+      loadClients();
+    } else {
+      toast('Lỗi ' + action, 'error');
+    }
+  } catch (err) {
+    toast('Lỗi kết nối server', 'error');
   }
 }
 

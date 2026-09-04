@@ -58,12 +58,12 @@ router.post('/:id/heartbeat', async (req, res) => {
       `, [req.params.id]);
     }
 
-    const client = await get('SELECT id FROM clients WHERE id = ?', [req.params.id]);
+    const client = await get('SELECT id, is_blocked FROM clients WHERE id = ?', [req.params.id]);
     if (!client) {
       return res.status(404).json({ error: 'Client không tồn tại' });
     }
 
-    res.json({ message: 'OK' });
+    res.json({ message: 'OK', is_blocked: client.is_blocked === 1 });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -89,6 +89,27 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Client không tồn tại' });
     }
     res.json(client);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Khoá/mở client
+// PUT /api/clients/:id/block
+// Body: { blocked: true/false }
+router.put('/:id/block', async (req, res) => {
+  try {
+    const { blocked } = req.body;
+    const result = await run(`
+      UPDATE clients SET is_blocked = ?
+      WHERE id = ?
+    `, [blocked ? 1 : 0, req.params.id]);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Client không tồn tại' });
+    }
+
+    res.json({ message: blocked ? 'Đã khoá client' : 'Đã mở khoá client' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

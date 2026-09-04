@@ -50,6 +50,7 @@ async function init() {
       mainboard_seri  TEXT NOT NULL,
       pancake_apikey  TEXT NOT NULL,
       misa_account    TEXT,                       -- Tài khoản kinh doanh MISA
+      is_blocked      INTEGER NOT NULL DEFAULT 0, -- 1=bị khoá, không được chạy
       started_at      TEXT NOT NULL,              -- ISO 8601
       last_seen_at    TEXT,                       -- lần heartbeat gần nhất
       status          INTEGER NOT NULL DEFAULT 1, -- 1=online, 0=offline
@@ -57,6 +58,13 @@ async function init() {
       UNIQUE(mainboard_seri)
     )
   `);
+
+  // Migration: thêm cột is_blocked nếu chưa có
+  try {
+    await run(`ALTER TABLE clients ADD COLUMN is_blocked INTEGER NOT NULL DEFAULT 0`);
+  } catch (e) {
+    // Cột đã tồn tại
+  }
 
   // Migration: thêm cột misa_account nếu chưa có
   try {
