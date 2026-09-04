@@ -1,0 +1,16 @@
+public/index.html
+  h_4a76f6664b389d 201,259
+src/index.js
+  h_4a76f6664b389d 17-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "f6e3d973d74c1d56535a8e6131cb50f7633ca4be",
+  "prompts": {},
+  "humans": {
+    "h_4a76f6664b389d": {
+      "author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
