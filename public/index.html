@@ -109,6 +109,7 @@
         <select id="filterClient" onchange="loadCommands()">
           <option value="">Tất cả client</option>
         </select>
+        <button class="btn btn-outline btn-sm" onclick="cleanupCommands()" title="Xoá lệnh đã xử lý và thất bại" style="margin:0 8px;">Dọn dẹp</button>
         <button class="refresh-btn" onclick="loadCommands()" title="Làm mới">&#8635;</button>
       </div>
     </div>
@@ -122,6 +123,7 @@
           <th>Trạng thái</th>
           <th>Tạo lúc</th>
           <th>Xác nhận</th>
+          <th></th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -258,7 +260,7 @@ async function loadCommands() {
     const tbody = document.querySelector('#tblCommands tbody');
 
     if (!commands.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Chưa có lệnh nào</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="text-muted">Chưa có lệnh nào</td></tr>';
       return;
     }
 
@@ -271,10 +273,51 @@ async function loadCommands() {
         <td>${statusBadge(c.status)}</td>
         <td>${fmtTime(c.created_at)}</td>
         <td>${fmtTime(c.acked_at)}</td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="deleteCommand(${c.id})" title="Xoá lệnh" style="color:var(--danger);border-color:var(--danger);">&#10005;</button>
+        </td>
       </tr>
     `).join('');
   } catch (err) {
     console.error('Load commands error:', err);
+  }
+}
+
+async function deleteCommand(id) {
+  if (!confirm('Xoá lệnh #' + id + '?')) return;
+
+  try {
+    const res = await fetch(API + '/api/commands/' + id, { method: 'DELETE' });
+    if (res.ok) {
+      toast('Đã xoá lệnh');
+      loadCommands();
+    } else {
+      toast('Lỗi xoá lệnh', 'error');
+    }
+  } catch (err) {
+    toast('Lỗi kết nối server', 'error');
+  }
+}
+
+async function cleanupCommands() {
+  if (!confirm('Xoá tất cả lệnh đã xử lý và thất bại?')) return;
+
+  try {
+    const res = await fetch(API + '/api/commands/cleanup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: [2, 3] })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      toast('Đã xoá ' + data.deleted + ' lệnh');
+      loadCommands();
+    } else {
+      toast('Lỗi dọn dẹp', 'error');
+    }
+  } catch (err) {
+    toast('Lỗi kết nối server', 'error');
   }
 }
 

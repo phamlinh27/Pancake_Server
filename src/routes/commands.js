@@ -151,4 +151,37 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Xoá 1 lệnh
+// DELETE /api/commands/:id
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await run('DELETE FROM commands WHERE id = ?', [req.params.id]);
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Lệnh không tồn tại' });
+    }
+    res.json({ message: 'Đã xoá lệnh' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Xoá nhiều lệnh theo điều kiện
+// POST /api/commands/cleanup
+// Body: { status: [2, 3] } — xoá lệnh đã xử lý hoặc thất bại
+router.post('/cleanup', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status || !Array.isArray(status) || !status.length) {
+      return res.status(400).json({ error: 'Cần truyền status là mảng (vd: [2, 3])' });
+    }
+
+    const placeholders = status.map(() => '?').join(',');
+    const result = await run(`DELETE FROM commands WHERE status IN (${placeholders})`, status);
+
+    res.json({ message: `Đã xoá ${result.changes} lệnh`, deleted: result.changes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
