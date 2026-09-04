@@ -87,6 +87,38 @@ async function init() {
       FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
     )
   `);
+
+  // Đồng bộ row cũ dạng ISO +07:00 (2026-09-04T14:58:34.036+07:00)
+  // về UTC plain khớp datetime('now') (2026-09-04 07:58:34)
+  const clientRows = await all('SELECT id, last_seen_at, started_at, created_at FROM clients');
+  for (const r of clientRows) {
+    const nl = toUtcPlain(r.last_seen_at);
+    const ns = toUtcPlain(r.started_at);
+    const nc = toUtcPlain(r.created_at);
+    if (nl !== r.last_seen_at || ns !== r.started_at || nc !== r.created_at) {
+      await run('UPDATE clients SET last_seen_at = ?, started_at = ?, created_at = ? WHERE id = ?',
+        [nl, ns, nc, r.id]);
+    }
+  }
+
+  const cmdRows = await all('SELECT id, created_at, delivered_at, acked_at FROM commands');
+  for (const r of cmdRows) {
+    const nc = toUtcPlain(r.created_at);
+    const nd = toUtcPlain(r.delivered_at);
+    const na = toUtcPlain(r.acked_at);
+    if (nc !== r.created_at || nd !== r.delivered_at || na !== r.acked_at) {
+      await run('UPDATE commands SET created_at = ?, delivered_at = ?, acked_at = ? WHERE id = ?',
+        [nc, nd, na, r.id]);
+    }
+  }
+}
+
+// Chuyển ISO có offset về UTC plain "yyyy-MM-dd HH:mm:ss"; chuỗi plain giữ nguyên
+function toUtcPlain(value) {
+  if (!value || !value.includes('T')) return value;
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  return d.toISOString().replace('T', ' ').slice(0, 19);
 }
 
 module.exports = { db, run, get, all, init };
