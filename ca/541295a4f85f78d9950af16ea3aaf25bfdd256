@@ -1,0 +1,33 @@
+.dockerignore
+  s_bfb195d4d3b767::t_70dddbc29a82d9 1-7
+Dockerfile
+  s_bfb195d4d3b767::t_7edd760888be5d 1-21
+docker-build.bat
+  s_bfb195d4d3b767::t_58d93346df82d9 1-34
+package-lock.json
+  s_a6d6aca8d74fef::t_92d3820c4b0444 1-2315
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "ca541295a4f85f78d9950af16ea3aaf25bfdd256",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    },
+    "s_bfb195d4d3b767": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8869fe8a-0b84-48f5-8634-cf1149ea7f86",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
