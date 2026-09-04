@@ -1,0 +1,19 @@
+public/index.html
+  s_a6d6aca8d74fef::t_28e8cd842a4b73 165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "15e342766d6e451ac088d815946e172fee45346c",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
