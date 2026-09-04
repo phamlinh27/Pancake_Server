@@ -162,7 +162,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const API = '';
+const API = location.pathname.replace(/\/$/, '');
 
 function toast(msg, type = 'success') {
   const el = document.getElementById('toast');
