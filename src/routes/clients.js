@@ -8,7 +8,7 @@ const router = express.Router();
 // POST /api/clients/register
 router.post('/register', async (req, res) => {
   try {
-    const { mainboard_seri, pancake_apikey, misa_account } = req.body;
+    const { mainboard_seri, pancake_apikey, misa_account, tool_name } = req.body;
 
     if (!mainboard_seri || !pancake_apikey) {
       return res.status(400).json({ error: 'Thiếu mainboard_seri hoặc pancake_apikey' });
@@ -20,9 +20,9 @@ router.post('/register', async (req, res) => {
     if (existing) {
       await run(`
         UPDATE clients
-        SET pancake_apikey = ?, misa_account = ?, status = 1, last_seen_at = datetime('now')
+        SET pancake_apikey = ?, tool_name = ?, misa_account = ?, status = 1, last_seen_at = datetime('now')
         WHERE id = ?
-      `, [pancake_apikey, misa_account || null, existing.id]);
+      `, [pancake_apikey, tool_name || null, misa_account || null, existing.id]);
 
       return res.json({ id: existing.id, message: 'Cập nhật client thành công' });
     }
@@ -30,9 +30,9 @@ router.post('/register', async (req, res) => {
     const id = uuidv7();
 
     await run(`
-      INSERT INTO clients (id, mainboard_seri, pancake_apikey, misa_account, started_at, last_seen_at)
-      VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
-    `, [id, mainboard_seri, pancake_apikey, misa_account || null]);
+      INSERT INTO clients (id, mainboard_seri, pancake_apikey, tool_name, misa_account, started_at, last_seen_at)
+      VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+    `, [id, mainboard_seri, pancake_apikey, tool_name || null, misa_account || null]);
 
     res.status(201).json({ id, message: 'Đăng ký client thành công' });
   } catch (err) {
@@ -44,13 +44,16 @@ router.post('/register', async (req, res) => {
 // POST /api/clients/:id/heartbeat
 router.post('/:id/heartbeat', async (req, res) => {
   try {
-    const { misa_account } = req.body || {};
+    const { misa_account, tool_name } = req.body || {};
 
-    if (misa_account !== undefined) {
+    if (misa_account !== undefined || tool_name !== undefined) {
       await run(`
-        UPDATE clients SET last_seen_at = datetime('now'), status = 1, misa_account = ?
+        UPDATE clients
+        SET last_seen_at = datetime('now'), status = 1,
+            misa_account = COALESCE(?, misa_account),
+            tool_name = COALESCE(?, tool_name)
         WHERE id = ?
-      `, [misa_account || null, req.params.id]);
+      `, [misa_account ?? null, tool_name ?? null, req.params.id]);
     } else {
       await run(`
         UPDATE clients SET last_seen_at = datetime('now'), status = 1

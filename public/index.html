@@ -89,6 +89,7 @@
       <thead>
         <tr>
           <th>Trạng thái</th>
+          <th>Đơn vị</th>
           <th>TK MISA</th>
           <th>Mainboard Seri</th>
           <th>API Key</th>
@@ -196,6 +197,10 @@ function statusBadge(status) {
 
 let allClients = [];
 
+function clientLabel(c) {
+  return (c.tool_name || c.misa_account || c.mainboard_seri.substring(0, 8));
+}
+
 async function loadClients() {
   try {
     const res = await fetch(API + '/api/clients?_t=' + Date.now());
@@ -206,13 +211,13 @@ async function loadClients() {
     const sel = document.getElementById('filterClient');
     const currentVal = sel.value;
     sel.innerHTML = '<option value="">Tất cả client</option>' +
-      allClients.map(c => `<option value="${c.id}" ${c.id === currentVal ? 'selected' : ''}>${c.mainboard_seri.substring(0, 8)}... (${c.status === 1 ? 'online' : 'offline'})</option>`).join('');
+      allClients.map(c => `<option value="${c.id}" ${c.id === currentVal ? 'selected' : ''}>${clientLabel(c)} (${c.status === 1 ? 'online' : 'offline'})</option>`).join('');
 
     // Update modal dropdown
     const cmdSel = document.getElementById('cmdClient');
     const cmdVal = cmdSel.value;
     cmdSel.innerHTML = allClients.map(c =>
-      `<option value="${c.id}" ${c.id === cmdVal ? 'selected' : ''}>${c.mainboard_seri.substring(0, 8)}... (${c.status === 1 ? 'online' : 'offline'})</option>`
+      `<option value="${c.id}" ${c.id === cmdVal ? 'selected' : ''}>${clientLabel(c)} (${c.status === 1 ? 'online' : 'offline'})</option>`
     ).join('');
   } catch (err) {
     console.error('Load clients error:', err);
@@ -232,13 +237,14 @@ function renderClients() {
   const tbody = document.querySelector('#tblClients tbody');
 
   if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + (allClients.length ? 'Không tìm thấy client nào' : 'Chưa có client nào') + '</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-muted">' + (allClients.length ? 'Không tìm thấy client nào' : 'Chưa có client nào') + '</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(c => `
     <tr${c.is_blocked ? ' style="background:#fee2e2;"' : ''}>
       <td><span class="status-dot ${c.status === 1 ? 'online' : 'offline'}"></span>${c.status === 1 ? 'Online' : 'Offline'}${c.is_blocked ? ' <span class="badge badge-failed">Khoá</span>' : ''}</td>
+      <td><strong>${c.tool_name || '-'}</strong></td>
       <td><strong>${c.misa_account || '-'}</strong></td>
       <td style="font-family:monospace;font-size:11px">${c.mainboard_seri}</td>
       <td style="font-family:monospace;font-size:11px">${c.pancake_apikey ? c.pancake_apikey.substring(0, 20) + '...' : ''}</td>
@@ -268,7 +274,7 @@ async function loadCommands() {
     tbody.innerHTML = commands.map(c => `
       <tr>
         <td>${c.id}</td>
-        <td><strong>${c.misa_account || (c.mainboard_seri ? c.mainboard_seri.substring(0, 8) + '...' : '-')}</strong></td>
+        <td><strong>${clientLabel(c)}</strong></td>
         <td><strong>${c.action}</strong></td>
         <td class="payload-preview">${c.payload ? JSON.stringify(c.payload) : '-'}</td>
         <td>${statusBadge(c.status)}</td>

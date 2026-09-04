@@ -105,7 +105,7 @@ router.post('/:id/ack', async (req, res) => {
 router.get('/client/:client_id', async (req, res) => {
   try {
     const commands = await all(`
-      SELECT c.*, cl.misa_account, cl.mainboard_seri
+      SELECT c.*, cl.tool_name, cl.misa_account, cl.mainboard_seri
       FROM commands c
       LEFT JOIN clients cl ON c.client_id = cl.id
       WHERE c.client_id = ?
@@ -128,7 +128,7 @@ router.get('/', async (req, res) => {
   try {
     const { status } = req.query;
     let sql = `
-      SELECT c.*, cl.misa_account, cl.mainboard_seri
+      SELECT c.*, cl.tool_name, cl.misa_account, cl.mainboard_seri
       FROM commands c
       LEFT JOIN clients cl ON c.client_id = cl.id
     `;

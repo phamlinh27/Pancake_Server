@@ -49,6 +49,7 @@ async function init() {
       id              TEXT PRIMARY KEY,           -- GUID v7
       mainboard_seri  TEXT NOT NULL,
       pancake_apikey  TEXT NOT NULL,
+      tool_name       TEXT,                       -- Tên đơn vị / tên tool
       misa_account    TEXT,                       -- Tài khoản kinh doanh MISA
       is_blocked      INTEGER NOT NULL DEFAULT 0, -- 1=bị khoá, không được chạy
       started_at      TEXT NOT NULL,              -- ISO 8601
@@ -69,6 +70,13 @@ async function init() {
   // Migration: thêm cột misa_account nếu chưa có
   try {
     await run(`ALTER TABLE clients ADD COLUMN misa_account TEXT`);
+  } catch (e) {
+    // Cột đã tồn tại
+  }
+
+  // Migration: thêm cột tool_name nếu chưa có
+  try {
+    await run(`ALTER TABLE clients ADD COLUMN tool_name TEXT`);
   } catch (e) {
     // Cột đã tồn tại
   }
