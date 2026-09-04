@@ -1,0 +1,32 @@
+src/db.js
+  s_a6d6aca8d74fef::t_3d0837361fa6ba 52
+  s_a6d6aca8d74fef::t_b1fd395a085864 77-83
+src/routes/clients.js
+  s_a6d6aca8d74fef::t_b5690bf092b021 11,23,25,33-35
+  s_a6d6aca8d74fef::t_99f8d6150e3755 47,49,51-54,56
+public/index.html
+  s_a6d6aca8d74fef::t_60cb027b10ff40 214,220
+  s_a6d6aca8d74fef::t_e3b2061c04c187 247
+  s_a6d6aca8d74fef::t_82928e7e761999 240
+  s_a6d6aca8d74fef::t_db506337814edb 92
+  s_a6d6aca8d74fef::t_9b244f536aefd0 277
+  s_a6d6aca8d74fef::t_52cfa60e38407e 200-203
+src/routes/commands.js
+  s_a6d6aca8d74fef::t_4d28372ae9c75b 108,131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "d95cd26c5023faf93c2f667703fdff553a4da05c",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-haiku-4-5-20251001"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
