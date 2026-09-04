@@ -1,0 +1,37 @@
+src/routes/clients.js
+  s_a6d6aca8d74fef::t_71db5dd8fa403a 51
+  s_a6d6aca8d74fef::t_e6d8dca80a2545 26,32,35-37
+  s_a6d6aca8d74fef::t_0435cccb7967cb 4
+src/time.js
+  s_a6d6aca8d74fef::t_6e40887854d3ba 1-23
+src/routes/commands.js
+  s_a6d6aca8d74fef::t_6fb5d2a631ca85 84
+  s_a6d6aca8d74fef::t_a1aef9324519c6 26
+  s_a6d6aca8d74fef::t_ab1b6c1730cf2e 55,57
+  s_a6d6aca8d74fef::t_aa3f99e65c4cfc 3
+src/index.js
+  s_a6d6aca8d74fef::t_09ce85a7e79631 51
+  s_a6d6aca8d74fef::t_2fe42cac8d1975 5
+public/index.html
+  s_a6d6aca8d74fef::t_3f2f577a37bfa2 178,180
+  s_a6d6aca8d74fef::t_0648be43c3d330 187
+src/db.js
+  s_a6d6aca8d74fef::t_ed093aa19bfb0b 91-113
+  s_a6d6aca8d74fef::t_2203b9b49525f5 4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "8a48c092af404c85ef934db811635061f1f0d267",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-haiku-4-5-20251001"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
