@@ -105,9 +105,11 @@ router.post('/:id/ack', async (req, res) => {
 router.get('/client/:client_id', async (req, res) => {
   try {
     const commands = await all(`
-      SELECT * FROM commands
-      WHERE client_id = ?
-      ORDER BY created_at DESC
+      SELECT c.*, cl.misa_account, cl.mainboard_seri
+      FROM commands c
+      LEFT JOIN clients cl ON c.client_id = cl.id
+      WHERE c.client_id = ?
+      ORDER BY c.created_at DESC
       LIMIT 50
     `, [req.params.client_id]);
 
@@ -125,15 +127,19 @@ router.get('/client/:client_id', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { status } = req.query;
-    let sql = 'SELECT * FROM commands';
+    let sql = `
+      SELECT c.*, cl.misa_account, cl.mainboard_seri
+      FROM commands c
+      LEFT JOIN clients cl ON c.client_id = cl.id
+    `;
     const params = [];
 
     if (status !== undefined) {
-      sql += ' WHERE status = ?';
+      sql += ' WHERE c.status = ?';
       params.push(parseInt(status));
     }
 
-    sql += ' ORDER BY created_at DESC LIMIT 100';
+    sql += ' ORDER BY c.created_at DESC LIMIT 100';
 
     const commands = await all(sql, params);
     res.json(commands.map(c => ({

@@ -265,7 +265,7 @@ async function loadCommands() {
     tbody.innerHTML = commands.map(c => `
       <tr>
         <td>${c.id}</td>
-        <td style="font-family:monospace;font-size:11px">${c.client_id.substring(0, 8)}...</td>
+        <td><strong>${c.misa_account || (c.mainboard_seri ? c.mainboard_seri.substring(0, 8) + '...' : '-')}</strong></td>
         <td><strong>${c.action}</strong></td>
         <td class="payload-preview">${c.payload ? JSON.stringify(c.payload) : '-'}</td>
         <td>${statusBadge(c.status)}</td>
