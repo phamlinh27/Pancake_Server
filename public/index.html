@@ -243,7 +243,7 @@ function renderClients() {
       <td style="font-family:monospace;font-size:11px">${c.mainboard_seri}</td>
       <td style="font-family:monospace;font-size:11px">${c.pancake_apikey ? c.pancake_apikey.substring(0, 20) + '...' : ''}</td>
       <td>${fmtTime(c.started_at)}</td>
-      <td>${timeAgo(c.last_seen_at)}</td>
+      <td title="${c.last_seen_at ? fmtTime(c.last_seen_at) : ''}">${c.status === 1 ? '<span class="badge badge-online">Đang online</span>' : timeAgo(c.last_seen_at)}</td>
       <td>
         <button class="btn btn-primary btn-sm" onclick="openCommandModal('${c.id}')" ${c.status !== 1 || c.is_blocked ? 'disabled' : ''}>Gửi lệnh</button>
         <button class="btn btn-sm ${c.is_blocked ? 'btn-primary' : 'btn-outline'}" onclick="toggleBlock('${c.id}', ${c.is_blocked ? 'false' : 'true'})" style="margin-left:4px;">${c.is_blocked ? 'Mở khoá' : 'Khoá'}</button>
