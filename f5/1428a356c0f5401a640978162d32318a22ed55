@@ -1,0 +1,20 @@
+public/index.html
+  s_a6d6aca8d74fef::t_9ba07d7282e8ef 121
+  s_a6d6aca8d74fef::t_792b5a9f2b1c62 111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "f51428a356c0f5401a640978162d32318a22ed55",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-haiku-4-5-20251001"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
