@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PanCake Server</title>
+<style>
+  :root {
+    --bg: #f5f6fa; --card: #fff; --border: #e0e0e0; --text: #333;
+    --primary: #4a6cf7; --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 22px; margin-bottom: 20px; }
+  h2 { font-size: 16px; margin-bottom: 12px; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 10px; background: #f8f9fb; border-bottom: 2px solid var(--border); font-weight: 600; }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #f0f4ff; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-online { background: #dcfce7; color: #166534; }
+  .badge-offline { background: #fee2e2; color: #991b1b; }
+  .badge-pending { background: #fef3c7; color: #92400e; }
+  .badge-delivered { background: #dbeafe; color: #1e40af; }
+  .badge-ack { background: #dcfce7; color: #166534; }
+  .badge-failed { background: #fee2e2; color: #991b1b; }
+
+  .btn { padding: 6px 14px; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #3b5de7; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { background: #f0f0f0; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  select, input[type=text], textarea {
+    padding: 8px 10px; border: 1px solid var(--border); border-radius: 5px;
+    font-size: 13px; font-family: inherit;
+  }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+
+  .form-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .form-row label { font-size: 13px; font-weight: 500; min-width: 80px; }
+
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; z-index: 100; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: 10px; padding: 24px; width: 480px; max-width: 90vw; }
+  .modal h3 { margin-bottom: 16px; }
+  .modal .form-group { margin-bottom: 12px; }
+  .modal .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .modal .form-group select, .modal .form-group textarea { width: 100%; }
+  .modal .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .status-dot.online { background: var(--success); }
+  .status-dot.offline { background: var(--danger); }
+
+  .refresh-btn { font-size: 18px; background: none; border: none; cursor: pointer; padding: 4px 8px; border-radius: 4px; }
+  .refresh-btn:hover { background: #e8e8e8; }
+
+  .text-muted { color: #888; font-size: 12px; }
+  .payload-preview { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: monospace; font-size: 11px; }
+
+  .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 14px; z-index: 200; display: none; }
+  .toast.success { background: var(--success); display: block; }
+  .toast.error { background: var(--danger); display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>PanCake Server</h1>
+
+  <!-- Clients -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Clients</h2>
+      <div>
+        <input type="text" id="filterMisa" placeholder="Lọc TK MISA..." oninput="filterClients()" style="width:160px;margin-right:8px;">
+        <button class="refresh-btn" onclick="loadClients()" title="Làm mới">&#8635;</button>
+      </div>
+    </div>
+    <table id="tblClients">
+      <thead>
+        <tr>
+          <th>Trạng thái</th>
+          <th>TK MISA</th>
+          <th>Mainboard Seri</th>
+          <th>API Key</th>
+          <th>Bắt đầu</th>
+          <th>Lần cuối online</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Commands -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Lệnh điều khiển</h2>
+      <div>
+        <select id="filterClient" onchange="loadCommands()">
+          <option value="">Tất cả client</option>
+        </select>
+        <button class="refresh-btn" onclick="loadCommands()" title="Làm mới">&#8635;</button>
+      </div>
+    </div>
+    <table id="tblCommands">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Client</th>
+          <th>Lệnh</th>
+          <th>Payload</th>
+          <th>Trạng thái</th>
+          <th>Tạo lúc</th>
+          <th>Xác nhận</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal tạo lệnh -->
+<div class="modal-overlay" id="modalCommand">
+  <div class="modal">
+    <h3>Tạo lệnh</h3>
+    <div class="form-group">
+      <label>Client</label>
+      <select id="cmdClient"></select>
+    </div>
+    <div class="form-group">
+      <label>Lệnh</label>
+      <select id="cmdAction" onchange="togglePayload()">
+        <option value="restart">restart</option>
+        <option value="shutdown">shutdown</option>
+        <option value="stop">stop</option>
+        <option value="start">start</option>
+        <option value="reload_config">reload_config</option>
+        <option value="update_config">update_config</option>
+      </select>
+    </div>
+    <div class="form-group" id="payloadGroup" style="display:none;">
+      <label>Payload (JSON)</label>
+      <textarea id="cmdPayload" rows="8" placeholder='{"ApiKey": "...", "Taxcode": "..."}'></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Huỷ</button>
+      <button class="btn btn-primary" onclick="sendCommand()">Gửi lệnh</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type;
+  setTimeout(() => { el.className = 'toast'; }, 3000);
+}
+
+function timeAgo(iso) {
+  if (!iso) return '-';
+  const diff = (Date.now() - new Date(iso + 'Z')) / 1000;
+  if (diff < 60) return Math.floor(diff) + 's trước';
+  if (diff < 3600) return Math.floor(diff / 60) + 'p trước';
+  if (diff < 86400) return Math.floor(diff / 3600) + 'h trước';
+  return Math.floor(diff / 86400) + ' ngày trước';
+}
+
+function fmtTime(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso + 'Z');
+  return d.toLocaleString('vi-VN');
+}
+
+function statusBadge(status) {
+  const map = { 0: ['pending', 'Chờ gửi'], 1: ['delivered', 'Đã gửi'], 2: ['ack', 'Đã xử lý'], 3: ['failed', 'Thất bại'] };
+  const [cls, text] = map[status] || ['pending', 'N/A'];
+  return `<span class="badge badge-${cls}">${text}</span>`;
+}
+
+let allClients = [];
+
+async function loadClients() {
+  try {
+    const res = await fetch(API + '/api/clients');
+    allClients = await res.json();
+    renderClients();
+
+    // Update filter dropdown
+    const sel = document.getElementById('filterClient');
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">Tất cả client</option>' +
+      allClients.map(c => `<option value="${c.id}" ${c.id === currentVal ? 'selected' : ''}>${c.mainboard_seri.substring(0, 8)}... (${c.status === 1 ? 'online' : 'offline'})</option>`).join('');
+
+    // Update modal dropdown
+    const cmdSel = document.getElementById('cmdClient');
+    const cmdVal = cmdSel.value;
+    cmdSel.innerHTML = allClients.map(c =>
+      `<option value="${c.id}" ${c.id === cmdVal ? 'selected' : ''}>${c.mainboard_seri.substring(0, 8)}... (${c.status === 1 ? 'online' : 'offline'})</option>`
+    ).join('');
+  } catch (err) {
+    console.error('Load clients error:', err);
+  }
+}
+
+function filterClients() {
+  renderClients();
+}
+
+function renderClients() {
+  const keyword = (document.getElementById('filterMisa').value || '').toLowerCase();
+  const filtered = keyword
+    ? allClients.filter(c => (c.misa_account || '').toLowerCase().includes(keyword))
+    : allClients;
+
+  const tbody = document.querySelector('#tblClients tbody');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + (allClients.length ? 'Không tìm thấy client nào' : 'Chưa có client nào') + '</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(c => `
+    <tr>
+      <td><span class="status-dot ${c.status === 1 ? 'online' : 'offline'}"></span>${c.status === 1 ? 'Online' : 'Offline'}</td>
+      <td><strong>${c.misa_account || '-'}</strong></td>
+      <td style="font-family:monospace;font-size:11px">${c.mainboard_seri}</td>
+      <td style="font-family:monospace;font-size:11px">${c.pancake_apikey ? c.pancake_apikey.substring(0, 20) + '...' : ''}</td>
+      <td>${fmtTime(c.started_at)}</td>
+      <td>${timeAgo(c.last_seen_at)}</td>
+      <td>
+        <button class="btn btn-primary btn-sm" onclick="openCommandModal('${c.id}')" ${c.status !== 1 ? 'disabled' : ''}>Gửi lệnh</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadCommands() {
+  try {
+    const clientId = document.getElementById('filterClient').value;
+    const url = clientId ? `/api/commands/client/${clientId}` : '/api/commands';
+    const res = await fetch(API + url);
+    const commands = await res.json();
+    const tbody = document.querySelector('#tblCommands tbody');
+
+    if (!commands.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-muted">Chưa có lệnh nào</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = commands.map(c => `
+      <tr>
+        <td>${c.id}</td>
+        <td style="font-family:monospace;font-size:11px">${c.client_id.substring(0, 8)}...</td>
+        <td><strong>${c.action}</strong></td>
+        <td class="payload-preview">${c.payload ? JSON.stringify(c.payload) : '-'}</td>
+        <td>${statusBadge(c.status)}</td>
+        <td>${fmtTime(c.created_at)}</td>
+        <td>${fmtTime(c.acked_at)}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Load commands error:', err);
+  }
+}
+
+function openCommandModal(clientId) {
+  if (clientId) {
+    document.getElementById('cmdClient').value = clientId;
+  }
+  document.getElementById('modalCommand').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modalCommand').classList.remove('show');
+}
+
+function togglePayload() {
+  const action = document.getElementById('cmdAction').value;
+  document.getElementById('payloadGroup').style.display = action === 'update_config' ? 'block' : 'none';
+}
+
+async function sendCommand() {
+  const clientId = document.getElementById('cmdClient').value;
+  const action = document.getElementById('cmdAction').value;
+  const payloadText = document.getElementById('cmdPayload').value.trim();
+
+  if (!clientId) { toast('Chọn client', 'error'); return; }
+
+  let payload = null;
+  if (action === 'update_config' && payloadText) {
+    try {
+      payload = JSON.parse(payloadText);
+    } catch {
+      toast('Payload không phải JSON hợp lệ', 'error');
+      return;
+    }
+  }
+
+  try {
+    const res = await fetch(API + '/api/commands', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId, action, payload })
+    });
+
+    if (res.ok) {
+      toast('Đã gửi lệnh thành công');
+      closeModal();
+      loadCommands();
+    } else {
+      const err = await res.json();
+      toast(err.error || 'Lỗi gửi lệnh', 'error');
+    }
+  } catch (err) {
+    toast('Lỗi kết nối server', 'error');
+  }
+}
+
+// Auto refresh mỗi 10s
+loadClients();
+loadCommands();
+setInterval(() => { loadClients(); loadCommands(); }, 10000);
+</script>
+</body>
+</html>
