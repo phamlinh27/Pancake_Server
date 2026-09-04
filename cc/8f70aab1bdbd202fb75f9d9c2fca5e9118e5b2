@@ -1,0 +1,22 @@
+public/index.html
+  s_a6d6aca8d74fef::t_32e459a1d72cc4 267
+  s_a6d6aca8d74fef::t_64322470802286 209
+src/index.js
+  s_a6d6aca8d74fef::t_2a0ba16560d49b 17-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "cc8f70aab1bdbd202fb75f9d9c2fca5e9118e5b2",
+  "prompts": {},
+  "sessions": {
+    "s_a6d6aca8d74fef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "460586ad-8028-4a16-8f7f-ff8faeee90bf",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "LINH PHAM ANH <palinh@rd.local>"
+    }
+  }
+}
